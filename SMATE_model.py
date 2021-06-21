@@ -7,10 +7,10 @@ import tensorflow.keras.layers as ll
 import tensorflow.keras.backend as K
 
 from tensorflow.keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply, add, GaussianNoise, Lambda
-from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import mse, binary_crossentropy, categorical_crossentropy
 from tensorflow.keras.utils import to_categorical, plot_model, multi_gpu_model
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn import svm, neighbors
@@ -18,7 +18,7 @@ from sklearn.semi_supervised import LabelSpreading
 
 
 class SMATE:
-    def __init__(self, L, data_dim, n_classes, label_size, unlabel_size, y_sup, sup_ratio, pool_step, d_prime):
+    def __init__(self, L, data_dim, n_classes, label_size, unlabel_size, y_sup, sup_ratio, pool_step, d_prime, outModelFile):
         self.L = L
         self.data_dim = data_dim
         self.n_classes = n_classes
@@ -29,12 +29,12 @@ class SMATE:
         self.sup_ratio = sup_ratio
         self.pool_step = pool_step
         self.d_prime = d_prime
+        self.outModelFile = outModelFile
         
     def build_model(self):
         y_sup_oneHot = to_categorical(self.y_sup, num_classes=self.n_classes) # n_sup * n_class (one-hot encoding)
         
         # linear mapping to low-dimensional space
-
         in_shape = (self.L, self.data_dim)  # the input shape of encoder
         self.model_e = encoder_smate(in_shape, self.pool_step, self.d_prime)
         #self.model_e = encoder_smate_rdp(in_shape, self.pool_step)
@@ -115,7 +115,6 @@ class SMATE:
         mts_in = self.model_e.input# batch_size * L * D
         mts_out = model_e_d.output
 
-
         rec_size = min(mts_in.shape[1], mts_out.shape[1])
         loss_rec = K.sqrt(K.sum(K.pow(mts_in[:, :rec_size, :] - mts_out[:, :rec_size, :], 2)) / self.train_size) # real value
 
@@ -135,19 +134,31 @@ class SMATE:
         self.model = model_e_d
         
     def fit(self, n_epochs, x_train, x_sup, x_unsup):
-        
-        print('n_epochs=%d, batch_size=%d, n_sup=%d, n_sup=%d, steps=%d' % (
-            n_epochs, self.train_size, self.label_size, self.unlabel_size, n_epochs))
-
-        mycallbacks = [
-            tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3, min_delta=0.0001, mode = 'auto')
-        ]
-
-        #callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3, min_delta=0.0001, mode = 'auto')
         if self.sup_ratio == 1:
             x_fit = x_train
         else:
             x_fit = np.concatenate((x_sup, x_unsup), axis=0)
+
+        validation_split = 0
+        monitor_metric = 'loss'
+        if x_fit.shape[0] > 100:
+            validation_split = 0.2
+            monitor_metric = 'val_loss'
+
+        print('n_epochs=%d, batch_size=%d, n_sup=%d, n_sup=%d, steps=%d' % (
+            n_epochs, self.train_size, self.label_size, self.unlabel_size, n_epochs))
+
+        # checkpoint for best model
+        checkpoint = ModelCheckpoint(self.outModelFile,
+                                     monitor= monitor_metric,
+                                     verbose=1,
+                                     save_best_only=True,
+                                     save_weights_only=True,
+                                     mode='min')
+        callbacks_list = [
+            checkpoint,
+            tf.keras.callbacks.EarlyStopping(monitor= 'loss', patience=3, min_delta=0.0001, mode = 'auto')
+        ]
 
         self.model.fit(
             x=x_fit,
@@ -155,8 +166,8 @@ class SMATE:
             batch_size=self.train_size,
             epochs=n_epochs,
             verbose=0,
-            callbacks=mycallbacks,
-            validation_split=0,
+            callbacks=callbacks_list,
+            validation_split=validation_split,
             validation_data=None,
             shuffle=False,
             class_weight=None,
@@ -182,7 +193,7 @@ class SMATE:
         clf_svc = svm.LinearSVC()
         clf_svc.fit(h_train, y_train)
         acc_svm_linear = accuracy_score(y_test, clf_svc.predict(h_test))
-        print('acc_svm is ', acc_svm, 'acc_svm_linear is ', acc_svm_linear)
+        print('acc_svm is ', max(acc_svm, acc_svm_linear))
         
     def predict_unsup(self, x_label, y_label, x_unlabel, x_test, y_test):
         h_label = self.model_e.predict(x_label)
@@ -217,7 +228,7 @@ class SMATE:
         clf_svc = svm.LinearSVC()
         clf_svc.fit(h_sup_unsup, y_sup_unsup)
         acc_svm_linear = accuracy_score(y_test, clf_svc.predict(h_test))
-        print('acc_svm is ', acc_svm, 'acc_svm_linear is ', acc_svm_linear)
+        print('acc_svm is ', max(acc_svm, acc_svm_linear))
         
     def predict_ssl(self, x_sup, y_sup, x_unsup, y_unsup, x_test, y_test):
         
@@ -248,6 +259,6 @@ class SMATE:
         clf_svc = svm.LinearSVC()
         clf_svc.fit(h_fit, y_fit_true)
         acc_svm_linear = accuracy_score(y_test, clf_svc.predict(h_test))
-        print('acc_svm is ', acc_svm, 'acc_svm_linear is ', acc_svm_linear)
+        print('acc_svm is ', max(acc_svm, acc_svm_linear))
 
         

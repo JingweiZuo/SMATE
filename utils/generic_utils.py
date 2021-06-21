@@ -52,8 +52,8 @@ def split_dataset(X, Y, sup_ratio, strategy='RandomSplit'):
         "X_sup, Y_sup, X_unsup, Y_unsup, n_classes"
     '''
 
-    X_list_label, Y_list_label = list(), list(), list(), list()
-    X_list_unlabel, Y_list_unlabel = list(), list(), list(), list()
+    X_list_label, Y_list_label = list(), list()
+    X_list_unlabel, Y_list_unlabel = list(), list()
 
     # compute the number of samples with labels to take
     n_samples = int(sup_ratio * len(Y))

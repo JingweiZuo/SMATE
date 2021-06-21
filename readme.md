@@ -18,28 +18,28 @@ This is the code corresponding to the experiments conducted for the work "SMATE:
 
 ## Files
 
-###Core
+#### Core
 
 - **"./SMATE_model.py"**: the SMATE model building
 - **"./utils/basic_modules.py"**: the components in SMATE architecture, as well as some baseline modules for comparing with the Spatial Modelling Block (SMB) 
 - **"./utils/generic_utils.py"**: the generic operations on dataset, as well as basic calculations on MTS samples  (e.g., distance measures, normalizations ,etc.) 
 
-### Test
-
-- **"./SMATE_classifier.ipynb"**: a Jupyter Notebook for testing the code
-
-###Operation and Visualization
+#### Operation and Visualization
 
 - **"./utils/UEA_utils.py"**: the processing on UEA datasets
 - **"./utils/data_plot.py"**: the code allows visualizing the embedding space via TSNE plots 
 
-###Baseline Files
+#### Baseline Files
 
-- **"./Baselines/*"**: Except *WEASEL+MUSE* is implemented by Java for which the readers need to download MAVEN dependencies, we provide a Jupyter Notebook for testing on each other baselines including MLSTM-FCN, USRL, 1-NN based classifiers, TapNet. The enviroment configurations for each baselines are different, please check the 
+- **"./Baselines/"**: Except *WEASEL+MUSE* is implemented by Java for which the readers need to download MAVEN dependencies, we provide a Jupyter Notebook for testing on each other baselines including MLSTM-FCN, USRL, 1-NN based classifiers, TapNet. The enviroment configurations for each baselines are different, please check the 
 
+### Dataset preprocessing
 
+Due to the space constraint, we include only part of UEA-MTS datasets in this repo. However, you can find the full datasets on www.timeseriesclassification.com. The dataset provided on this site are in "arff" format, we provide the preprocessing code that you can find in ***[Preprocessing_MTS_UEA.ipynb](./Datasets/MTS-UEA/Preprocessing_MTS_UEA.ipynb)***
 
-## Datasets
+### Training & Testing
 
-Due to the space constraint, we include only part of UEA-MTS datasets in this repo. However, you can find the full datasets on www.timeseriesclassification.com. The dataset provided on this site are in "arff" format, we provide the preprocessing code that you can find in ***"./SMATE/Datasets/MTS-UEA/Preprocessing_MTS_UEA.ipynb"***
+```python
+python SMATE_classifier.py --d_prime_ratio 0.5 --p_ratio 0.1 --ds_name Cricket
+```
 
