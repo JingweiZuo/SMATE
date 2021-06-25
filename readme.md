@@ -1,5 +1,5 @@
 ## SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series
-This is the code corresponding to the experiments conducted for the work "SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series".
+This is the code repo corresponding to the experiments conducted for the work "SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series".
 
 
 
@@ -31,7 +31,7 @@ This is the code corresponding to the experiments conducted for the work "SMATE:
 
 #### Baseline Files
 
-- **"./Baselines/"**: Except *WEASEL+MUSE* is implemented by Java for which the readers need to download MAVEN dependencies, we provide a Jupyter Notebook for testing on each other baselines including MLSTM-FCN, USRL, 1-NN based classifiers, TapNet. The enviroment configurations for each baselines are different, please check the 
+- **"./Baselines/"**: Except *WEASEL+MUSE* is implemented by Java for which the readers need to download MAVEN dependencies, we provide a Jupyter Notebook for testing on each other baselines including MLSTM-FCN, USRL, 1-NN based classifiers, TapNet. The enviroment configurations for each baselines are different, please check the details in the original papers.
 
 ### Dataset preprocessing
 
