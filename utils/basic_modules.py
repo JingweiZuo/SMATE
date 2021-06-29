@@ -117,23 +117,23 @@ def decoder_smate(encoder, timesteps, data_dim, pool_step):
     # temporal axis
     if (module_name == 'gru'):
         if (tf.test.is_gpu_available()):
-            out_t = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out)
+            out = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out_t = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
+                out = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out)  # output: (batch_size, timesteps, hidden_dim)
         else:
-            out_t = ll.GRU(hidden_dim, return_sequences=True)(input_)
+            out = ll.GRU(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out_t = ll.GRU(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
+                out = ll.GRU(hidden_dim, return_sequences=True)(out)  # output: (batch_size, timesteps, hidden_dim)
         
     elif (module_name == 'lstm'):
         if (tf.test.is_gpu_available()):
-            out_t = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out)
+            out = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out_t = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out_t) # output: (batch_size, timesteps, hidden_dim)
+                out = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out) # output: (batch_size, timesteps, hidden_dim)
         else:
-            out_t = ll.LSTM(hidden_dim, return_sequences=True)(input_)
+            out = ll.LSTM(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out_t = ll.LSTM(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
+                out = ll.LSTM(hidden_dim, return_sequences=True)(out)  # output: (batch_size, timesteps, hidden_dim)
     
     out = ll.Dense(data_dim, activation='sigmoid')(out)
 
