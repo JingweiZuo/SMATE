@@ -1,0 +1,6 @@
+dataset: DuckDuckGeese
+attention type: 0
+../parameters/all_feature_classification_duckduckgeese.txt
+('DuckDuckGeese', '../data/DuckDuckGeese/', 1345, 270, 5, 0, 0, -1, '../object/DuckDuckGeese/fcn_classification/', 'cnn', '../log/DuckDuckGeese/fcn_classification/', '../object/DuckDuckGeese/fcn_classification/cnn_obj_folder', '../object/DuckDuckGeese/fcn_classification/cnn_model_folder', '../parameters/cnn_model_parameter.txt')
+log file: ../log/DuckDuckGeese/fcn_classification/DuckDuckGeese_train_fcn_classification_act3_acc_attention0_conv3.log
+(?, 7, 1345, 128)

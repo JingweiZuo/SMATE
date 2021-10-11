@@ -1,0 +1,37 @@
+Fatal Python error: initsite: Failed to import the site module
+Error processing line 1 of /linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site-packages/matplotlib-3.2.1-py3.7-nspkg.pth:
+
+Traceback (most recent call last):
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site.py", line 168, in addpackage
+    exec(line)
+  File "<string>", line 1, in <module>
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/importlib/util.py", line 14, in <module>
+    from contextlib import contextmanager
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/contextlib.py", line 5, in <module>
+    from collections import deque
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/collections/__init__.py", line 27, in <module>
+    from reprlib import recursive_repr as _recursive_repr
+  File "/gpfslocalsup/pub/anaconda-py2/2019.03/lib/python2.7/site-packages/reprlib/__init__.py", line 7, in <module>
+    raise ImportError('This package should not be accessible on Python 3. '
+ImportError: This package should not be accessible on Python 3. Either you are trying to run from the python-future src folder or your installation of python-future is corrupted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site.py", line 586, in <module>
+    main()
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site.py", line 573, in main
+    known_paths = addsitepackages(known_paths)
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site.py", line 349, in addsitepackages
+    addsitedir(sitedir, known_paths)
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site.py", line 207, in addsitedir
+    addpackage(sitedir, name, known_paths)
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/site.py", line 178, in addpackage
+    import traceback
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/traceback.py", line 3, in <module>
+    import collections
+  File "/linkhome/rech/genvsq01/ulz67kb/.conda/envs/SMAT_ADE/lib/python3.7/collections/__init__.py", line 27, in <module>
+    from reprlib import recursive_repr as _recursive_repr
+  File "/gpfslocalsup/pub/anaconda-py2/2019.03/lib/python2.7/site-packages/reprlib/__init__.py", line 7, in <module>
+    raise ImportError('This package should not be accessible on Python 3. '
+ImportError: This package should not be accessible on Python 3. Either you are trying to run from the python-future src folder or your installation of python-future is corrupted.
