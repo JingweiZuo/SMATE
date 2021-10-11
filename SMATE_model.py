@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Input, Dense, Reshape, Flatten, Dropout, mul
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import mse, binary_crossentropy, categorical_crossentropy
 from tensorflow.keras.utils import to_categorical, plot_model, multi_gpu_model
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn import svm, neighbors
@@ -18,7 +18,7 @@ from sklearn.semi_supervised import LabelSpreading
 
 
 class SMATE:
-    def __init__(self, L, data_dim, n_classes, label_size, unlabel_size, y_sup, sup_ratio, pool_step, d_prime, outModelFile):
+    def __init__(self, L, data_dim, n_classes, label_size, unlabel_size, y_sup, sup_ratio, p_ratio, d_prime_ratio, kernels, outModelFile):
         self.L = L
         self.data_dim = data_dim
         self.n_classes = n_classes
@@ -27,8 +27,9 @@ class SMATE:
         self.train_size = label_size + unlabel_size
         self.y_sup = y_sup
         self.sup_ratio = sup_ratio
-        self.pool_step = pool_step
-        self.d_prime = d_prime
+        self.pool_step = round(p_ratio * L)
+        self.d_prime = round(d_prime_ratio * data_dim)
+        self.kernels = kernels
         self.outModelFile = outModelFile
         
     def build_model(self):
@@ -36,7 +37,7 @@ class SMATE:
         
         # linear mapping to low-dimensional space
         in_shape = (self.L, self.data_dim)  # the input shape of encoder
-        self.model_e = encoder_smate(in_shape, self.pool_step, self.d_prime)
+        self.model_e = encoder_smate(in_shape, self.pool_step, self.d_prime, self.kernels)
         #self.model_e = encoder_smate_rdp(in_shape, self.pool_step)
         #self.model_e = encoder_smate_se(in_shape, self.pool_step)
         
@@ -57,6 +58,7 @@ class SMATE:
         # Adjust central points
 
         dists_sup = euclidean_dist_mts(h_sup, h_proto) # n_sup * n_class
+        #print("dists_sup.shape is {}".format(dists_sup.shape))
         dists_sum = K.sum(dists_sup, axis=1, keepdims=True) # normalize 'dists'
         dists_norm = dists_sup / dists_sum # n_sup * n_class (one-hot encoding)
         proba_sup = 1 - dists_norm
@@ -133,18 +135,15 @@ class SMATE:
         #model_e_d.summary()
         self.model = model_e_d
         
-    def fit(self, n_epochs, x_train, x_sup, x_unsup):
+    def fit(self, n_epochs, x_train, x_sup, x_unsup, val_raio, patience):
         if self.sup_ratio == 1:
             x_fit = x_train
         else:
             x_fit = np.concatenate((x_sup, x_unsup), axis=0)
 
-        validation_split = 0
         monitor_metric = 'loss'
-        if x_fit.shape[0] > 100:
-            validation_split = 0.2
+        if val_raio != 0:
             monitor_metric = 'val_loss'
-
         print('n_epochs=%d, batch_size=%d, n_sup=%d, n_sup=%d, steps=%d' % (
             n_epochs, self.train_size, self.label_size, self.unlabel_size, n_epochs))
 
@@ -155,9 +154,13 @@ class SMATE:
                                      save_best_only=True,
                                      save_weights_only=True,
                                      mode='min')
+        
+       # reduce_lr = ReduceLROnPlateau(monitor=monitor_metric, factor=0.2,patience=5, min_lr=1e-7)
+
         callbacks_list = [
             checkpoint,
-            tf.keras.callbacks.EarlyStopping(monitor= 'loss', patience=3, min_delta=0.0001, mode = 'auto')
+            #reduce_lr,
+            tf.keras.callbacks.EarlyStopping(monitor= monitor_metric, patience=patience, min_delta=0.0001, mode = 'auto')
         ]
 
         self.model.fit(
@@ -167,19 +170,21 @@ class SMATE:
             epochs=n_epochs,
             verbose=0,
             callbacks=callbacks_list,
-            validation_split=validation_split,
+            validation_split=val_raio,
             validation_data=None,
-            shuffle=False,
+            shuffle=True,
             class_weight=None,
             sample_weight=None,
             initial_epoch=0,
             max_queue_size=10,
             workers=1,
-            use_multiprocessing=True,
+            use_multiprocessing=False,
         )
         
         
     def predict(self, x_train, y_train, x_test, y_test):
+        print("y_train info", np.unique(y_train, return_counts=True))
+        print("y_train info without val. data", np.unique(y_train[: int(len(y_train) * 0.9)], return_counts=True))
         h_train = self.model_e.predict(x_train)
         h_test = self.model_e.predict(x_test)
 

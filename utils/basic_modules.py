@@ -46,7 +46,7 @@ def spatial_dynamic_block(input, pool_size, d_prime):
     se = multiply([input, se])
     return se
 
-def encoder_smate(in_shape, pool_step, d_prime):
+def encoder_smate(in_shape, pool_step, d_prime, kernels = [8, 5, 3]):
     input_ = Input(shape=in_shape)  # input: (samples, L, input_dims)
     L = in_shape[0]
     
@@ -72,18 +72,18 @@ def encoder_smate(in_shape, pool_step, d_prime):
                 out_t = ll.LSTM(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
                 
     # 1D-CNN
-    out_s = spatial_dynamic_block(input_, 8, d_prime)
-    out_s = Conv1D(128, 8, padding='same', kernel_initializer='he_uniform')(input_)
+    out_s = spatial_dynamic_block(input_, kernels[0], d_prime)
+    out_s = Conv1D(128, kernels[0], padding='same', kernel_initializer='he_uniform')(input_)
     out_s = BatchNormalization()(out_s)
     out_s = Activation('relu')(out_s)
     
-    out_s = spatial_dynamic_block(out_s, 5, 8)
-    out_s = Conv1D(256, 5, padding='same', kernel_initializer='he_uniform')(out_s)
+    out_s = spatial_dynamic_block(out_s, kernels[1], 8)
+    out_s = Conv1D(256, kernels[1], padding='same', kernel_initializer='he_uniform')(out_s)
     out_s = BatchNormalization()(out_s)
     out_s = Activation('relu')(out_s)
     
-    out_s = spatial_dynamic_block(out_s, 3, 16)
-    out_s = Conv1D(128, 3, padding='same', kernel_initializer='he_uniform')(out_s)
+    out_s = spatial_dynamic_block(out_s, kernels[2], 16)
+    out_s = Conv1D(128, kernels[2], padding='same', kernel_initializer='he_uniform')(out_s)
     out_s = BatchNormalization()(out_s)
     out_s = Activation('relu')(out_s) # L * D  
 
@@ -117,25 +117,25 @@ def decoder_smate(encoder, timesteps, data_dim, pool_step):
     # temporal axis
     if (module_name == 'gru'):
         if (tf.test.is_gpu_available()):
-            out = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out)
+            out_t = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out)  # output: (batch_size, timesteps, hidden_dim)
+                out_t = ll.CuDNNGRU(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
         else:
-            out = ll.GRU(hidden_dim, return_sequences=True)(out)
+            out_t = ll.GRU(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out = ll.GRU(hidden_dim, return_sequences=True)(out)  # output: (batch_size, timesteps, hidden_dim)
+                out_t = ll.GRU(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
         
     elif (module_name == 'lstm'):
         if (tf.test.is_gpu_available()):
-            out = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out)
+            out_t = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out) # output: (batch_size, timesteps, hidden_dim)
+                out_t = ll.CuDNNLSTM(hidden_dim, return_sequences=True)(out_t) # output: (batch_size, timesteps, hidden_dim)
         else:
-            out = ll.LSTM(hidden_dim, return_sequences=True)(out)
+            out_t = ll.LSTM(hidden_dim, return_sequences=True)(out)
             for i in range(num_layers - 1):
-                out = ll.LSTM(hidden_dim, return_sequences=True)(out)  # output: (batch_size, timesteps, hidden_dim)
+                out_t = ll.LSTM(hidden_dim, return_sequences=True)(out_t)  # output: (batch_size, timesteps, hidden_dim)
     
-    out = ll.Dense(data_dim, activation='sigmoid')(out)
+    out = ll.Dense(data_dim, activation='sigmoid')(out_t)
 
     model = Model(encoder.input, out)
     return model

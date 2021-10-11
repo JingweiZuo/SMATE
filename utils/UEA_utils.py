@@ -5,7 +5,7 @@ import time
 
 '''================================= Prepare data import (MTS-UEA) =================================='''
 
-def import_data_UEA(rep, meta_csv, mapping_c_l):
+def import_data_UEA(rep, meta_csv, mapping_c_l, norm):
     '''
 
     :param rep: the repository of dataset files
@@ -33,12 +33,10 @@ def import_data_UEA(rep, meta_csv, mapping_c_l):
         raw_data = np.genfromtxt(rep + dsName + '.csv', delimiter=',', encoding="utf8",
                                  filling_values=0)  # No header in raw files
         raw_data = raw_data.astype(np.float32)  # remove timestamp and the last row (label)
-        data = z_normalization(raw_data)
-        data = MinMaxScaler(data)
-
+        
         '''
             Just for CharacterTrajectories, the end of MTS is all O
-        
+
         L_seq = 0
         for idx in range(raw_data.shape[0]):
             if raw_data[idx].all() == 0:
@@ -47,15 +45,20 @@ def import_data_UEA(rep, meta_csv, mapping_c_l):
 
         data[L_seq:] = np.zeros_like(data[L_seq:])'''
 
+        if norm:
+            data = z_normalization(raw_data)
+            data = MinMaxScaler(data)
+        else:
+            data = raw_data  # No normalisation
+
         # As the samples may not have the same length, then we put them into a list
         X_train.append(data)
     return X_train, Labels  # X_train is a list of 2-D array, length*dimension
 
-def prepare_data_UEA(rep, meta_csv, mapping_c_l, mode='load'):  # mode = 'load'/'save' samples' spatial correlation from/to disk
+def prepare_data_UEA(rep, meta_csv, mapping_c_l, norm='True'):
     # Load meta-data about the dataset
-
     X_list, Y = import_data_UEA(rep, meta_csv,
-                                mapping_c_l)  # a list of 2-D array, length*dimension; an 1-D array of labels
+                                mapping_c_l, norm)  # a list of 2-D array, length*dimension; an 1-D array of labels
 
     Max_Seq_Len = get_max_seq_len(X_list)
     X, L = padding_variable_length(X_list, Max_Seq_Len)  # Padding the samples into an identical length
@@ -63,10 +66,10 @@ def prepare_data_UEA(rep, meta_csv, mapping_c_l, mode='load'):  # mode = 'load'/
     
     return X, Y
 
-def get_UEA_dataset(rep_ds_train, rep_ds_test, meta_csv, sup_ratio, mode = 'load', split_strategy='EqualSplit'):
+def get_UEA_dataset(rep_ds_train, rep_ds_test, meta_csv, sup_ratio, norm = 'True', split_strategy='EqualSplit'):
     mapping_c_l = get_mapping_c_l(rep_ds_train, meta_csv)
-    X_train, Y_train = prepare_data_UEA(rep_ds_train, meta_csv, mapping_c_l, mode)
-    X_test, Y_test = prepare_data_UEA(rep_ds_test, meta_csv, mapping_c_l, mode)
+    X_train, Y_train = prepare_data_UEA(rep_ds_train, meta_csv, mapping_c_l, norm)
+    X_test, Y_test = prepare_data_UEA(rep_ds_test, meta_csv, mapping_c_l, norm)
     X_sup, Y_sup, X_unsup, Y_unsup, n_classes = split_dataset(X_train,
                                                               Y_train,
                                                               sup_ratio,
