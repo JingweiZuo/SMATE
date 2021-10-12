@@ -1,5 +1,5 @@
 ## SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series
-This is the implementation of SMATE in the following paper: SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series.
+This is the implementation of SMATE in the following paper: [SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series](https://arxiv.org/pdf/2110.00578.pdf).
 
 <img src="./figures/ModelStructure.png" alt="The architecture of SMATE" style="zoom:90%" align="middle"/>
 
@@ -35,7 +35,7 @@ python SMATE_classifier.py --ds_name DATASET_NAME
 
 ### Results
 
-<b>Fully supervised results on UEA-MTS archive</b>
+<b>Fully supervised results on UEA-MTS archive (30 datasets)</b>
 
 <img src="./figures/supervisedResults.png" alt="Supervised Results" style="zoom:100%" align="middle"/>
 
