@@ -72,11 +72,13 @@ python SMATE_classifier.py --ds_name DATASET_NAME
 If you find this repository useful in your research, please consider citing the following paper:
 
 ```script
-@article{zuo2021smate,
+@inproceedings{zuo2021smate,
   title={SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series},
   author={Zuo, Jingwei and Zeitouni, Karine and Taher, Yehia},
-  journal={arXiv preprint arXiv:2110.00578},
-  year={2021}
+  booktitle={2021 IEEE International Conference on Data Mining (ICDM)},
+  pages={1565--1570},
+  year={2021},
+  organization={IEEE}
 }
 ```
 
