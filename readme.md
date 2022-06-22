@@ -1,10 +1,15 @@
 ## SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series
-This is the implementation of SMATE in the following paper: [SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series](https://arxiv.org/pdf/2110.00578.pdf).
+This is the implementation of SMATE in the following paper: [SMATE: Semi-Supervised Spatio-Temporal Representation Learning on Multivariate Time Series (ICDM 2021)](https://arxiv.org/pdf/2110.00578.pdf). Check full version [here](https://www.jingweizuo.com/publication/SMATE_ICDM2021.pdf).
+
+### Abstract
+Learning from Multivariate Time Series (MTS) has attracted widespread attention in recent years. In particular, label shortage is a practical challenge for the classification task on MTS, considering its complex dimensional and sequential data structure. Unlike self-training and positive unlabeled learning that rely on distance-based classifiers, in this paper, we propose SMATE, a novel semi-supervised model for learning the interpretable Spatio-Temporal representation from weakly labeled MTS. We validate empirically the learned representation on 30 public datasets from the UEA MTS archive. We compare it with 13 state-of-the-art baseline methods for fully supervised tasks and four baselines for semi-supervised tasks. The results show the reliability and efficiency of our proposed method.
+
+**Key words**: Machine Learning, Multivariate Time Series, Semi-supervised Learning, Representation Learning
+
 
 <img src="./figures/ModelStructure.png" alt="The architecture of SMATE" style="zoom:90%" align="middle"/>
 
 <p align="center"><b>Figure 1</b>: The architecture of SMATE</p>
-
 
 ### Requirements
 
