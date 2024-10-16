@@ -105,8 +105,8 @@ class SMATE:
             weight_unsup = 1 - weight_sup
             h_proto = add([weight_sup * h_proto,  weight_unsup * h_proto_unsup])
 
-        # Re-calculate the distance vector
-        #dists_sup = euclidean_dist_mts(h_sup, h_proto) # n_sup * n_class
+            # Re-calculate the distance vector
+            dists_sup = euclidean_dist_mts(h_sup, h_proto) # n_sup * n_class
         
         # Define the auto-encoder models
 
